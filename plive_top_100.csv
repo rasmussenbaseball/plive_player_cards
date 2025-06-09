@@ -1,0 +1,201 @@
+Rank,Prospects ,Team,Position,Rk Name,Team Pos,Long format,,,,
+1,Roki Sasaki,LAD,RHP,1. Roki Sasaki,"LAD, RHP","1. Roki Sasaki, RHP (LAD)",1,1. Roki Sasaki,,1. Roki Sasaki
+2,Roman Anthony,BOS,OF,2. Roman Anthony,"BOS, OF","2. Roman Anthony, OF (BOS)",1,"LAD, RHP",,"LAD, RHP"
+3,Kristian Campbell,BOS,INF/OF,3. Kristian Campbell,"BOS, INF/OF","3. Kristian Campbell, INF/OF (BOS)",2,2. Roman Anthony,,2. Roman Anthony
+4,Jackson Jobe,DET,RHP,4. Jackson Jobe,"DET, RHP","4. Jackson Jobe, RHP (DET)",2,"BOS, OF",,"BOS, OF"
+5,Dylan Crews,WSH,OF,5. Dylan Crews,"WSH, OF","5. Dylan Crews, OF (WSH)",3,3. Kristian Campbell,,3. Kristian Campbell
+6,Carson Williams,TB,SS,6. Carson Williams,"TB, SS","6. Carson Williams, SS (TB)",3,"BOS, INF/OF",,"BOS, INF/OF"
+7,Sebastian Walcott,TEX,SS,7. Sebastian Walcott,"TEX, SS","7. Sebastian Walcott, SS (TEX)",4,4. Jackson Jobe,,4. Jackson Jobe
+8,Travis Bazzana,CLE,2B,8. Travis Bazzana,"CLE, 2B","8. Travis Bazzana, 2B (CLE)",4,"DET, RHP",,"DET, RHP"
+9,Samuel Basallo,BAL,C,9. Samuel Basallo,"BAL, C","9. Samuel Basallo, C (BAL)",5,5. Dylan Crews,,5. Dylan Crews
+10,Jesus Made,MIL,SS,10. Jesus Made,"MIL, SS","10. Jesus Made, SS (MIL)",5,"WSH, OF",,"WSH, OF"
+11,Leodalis De Vries,SD,SS,11. Leodalis De Vries,"SD, SS","11. Leodalis De Vries, SS (SD)",6,6. Carson Williams,,6. Carson Williams
+12,Andrew Painter,PHI,RHP,12. Andrew Painter,"PHI, RHP","12. Andrew Painter, RHP (PHI)",6,"TB, SS",,"TB, SS"
+13,Matt Shaw,CHC,INF,13. Matt Shaw,"CHC, INF","13. Matt Shaw, INF (CHC)",7,7. Sebastian Walcott,,7. Sebastian Walcott
+14,Bubba Chandler,PIT,RHP,14. Bubba Chandler,"PIT, RHP","14. Bubba Chandler, RHP (PIT)",7,"TEX, SS",,"TEX, SS"
+15,Noah Schultz,CWS,LHP,15. Noah Schultz,"CWS, LHP","15. Noah Schultz, LHP (CWS)",8,8. Travis Bazzana,,8. Travis Bazzana
+16,Colt Emerson,SEA,SS,16. Colt Emerson,"SEA, SS","16. Colt Emerson, SS (SEA)",8,"CLE, 2B",,"CLE, 2B"
+17,Emmanuel Rodriguez,MIN,OF,17. Emmanuel Rodriguez,"MIN, OF","17. Emmanuel Rodriguez, OF (MIN)",9,9. Samuel Basallo,,9. Samuel Basallo
+18,Dalton Rushing,LAD,C/OF,18. Dalton Rushing,"LAD, C/OF","18. Dalton Rushing, C/OF (LAD)",9,"BAL, C",,"BAL, C"
+19,Max Clark,DET,OF,19. Max Clark,"DET, OF","19. Max Clark, OF (DET)",10,10. Jesus Made,,10. Jesus Made
+20,Chase Dollander,COL,RHP,20. Chase Dollander,"COL, RHP","20. Chase Dollander, RHP (COL)",10,"MIL, SS",,"MIL, SS"
+21,Kumar Rocker,TEX,RHP,21. Kumar Rocker,"TEX, RHP","21. Kumar Rocker, RHP (TEX)",11,11. Leodalis De Vries,,11. Leodalis De Vries
+22,JJ Wetherholt,STL,SS,22. JJ Wetherholt,"STL, SS","22. JJ Wetherholt, SS (STL)",11,"SD, SS",,"SD, SS"
+23,Kevin McGonigle,DET,SS/2B,23. Kevin McGonigle,"DET, SS/2B","23. Kevin McGonigle, SS/2B (DET)",12,12. Andrew Painter,,12. Andrew Painter
+24,Nick Kurtz,OAK,1B,24. Nick Kurtz,"OAK, 1B","24. Nick Kurtz, 1B (OAK)",12,"PHI, RHP",,"PHI, RHP"
+25,Coby Mayo,BAL,3B,25. Coby Mayo,"BAL, 3B","25. Coby Mayo, 3B (BAL)",13,13. Matt Shaw,,13. Matt Shaw
+26,Walker Jenkins,MIN,OF,26. Walker Jenkins,"MIN, OF","26. Walker Jenkins, OF (MIN)",13,"CHC, INF",,"CHC, INF"
+27,Bryce Eldridge,SF,1B,27. Bryce Eldridge,"SF, 1B","27. Bryce Eldridge, 1B (SF)",14,14. Bubba Chandler,,14. Bubba Chandler
+28,Kyle Teel,CWS,C,28. Kyle Teel,"CWS, C","28. Kyle Teel, C (CWS)",14,"PIT, RHP",,"PIT, RHP"
+29,Cam Smith,HOU,3B,29. Cam Smith,"HOU, 3B","29. Cam Smith, 3B (HOU)",15,15. Noah Schultz,,15. Noah Schultz
+30,Brandon Sproat,NYM,RHP,30. Brandon Sproat,"NYM, RHP","30. Brandon Sproat, RHP (NYM)",15,"CWS, LHP",,"CWS, LHP"
+31,Aidan Miller,PHI,SS,31. Aidan Miller,"PHI, SS","31. Aidan Miller, SS (PHI)",16,16. Colt Emerson,,16. Colt Emerson
+32,Chase Burns,CIN,RHP,32. Chase Burns,"CIN, RHP","32. Chase Burns, RHP (CIN)",16,"SEA, SS",,"SEA, SS"
+33,Quinn Mathews,STL,LHP,33. Quinn Mathews,"STL, LHP","33. Quinn Mathews, LHP (STL)",17,17. Emmanuel Rodriguez,,17. Emmanuel Rodriguez
+34,Marcelo Mayer,BOS,SS,34. Marcelo Mayer,"BOS, SS","34. Marcelo Mayer, SS (BOS)",17,"MIN, OF",,"MIN, OF"
+35,Zyhir Hope,LAD,OF,35. Zyhir Hope,"LAD, OF","35. Zyhir Hope, OF (LAD)",18,18. Dalton Rushing,,18. Dalton Rushing
+36,Hagen Smith,CWS,LHP,36. Hagen Smith,"CWS, LHP","36. Hagen Smith, LHP (CWS)",18,"LAD, C/OF",,"LAD, C/OF"
+37,Jac Caglianone,KC,1B,37. Jac Caglianone,"KC, 1B","37. Jac Caglianone, 1B (KC)",19,19. Max Clark,,19. Max Clark
+38,Chase DeLauter,CLE,OF,38. Chase DeLauter,"CLE, OF","38. Chase DeLauter, OF (CLE)",19,"DET, OF",,"DET, OF"
+39,Jacob Wilson,OAK,SS,39. Jacob Wilson,"OAK, SS","39. Jacob Wilson, SS (OAK)",20,20. Chase Dollander,,20. Chase Dollander
+40,Thomas White,MIA,LHP,40. Thomas White,"MIA, LHP","40. Thomas White, LHP (MIA)",20,"COL, RHP",,"COL, RHP"
+41,Jarlin Susana,WSH,RHP,41. Jarlin Susana,"WSH, RHP","41. Jarlin Susana, RHP (WSH)",21,21. Kumar Rocker,,21. Kumar Rocker
+42,Konnor Griffin,PIT,SS/OF,42. Konnor Griffin,"PIT, SS/OF","42. Konnor Griffin, SS/OF (PIT)",21,"TEX, RHP",,"TEX, RHP"
+43,Jacob Misiorowski,MIL,RHP,43. Jacob Misiorowski,"MIL, RHP","43. Jacob Misiorowski, RHP (MIL)",22,22. JJ Wetherholt,,22. JJ Wetherholt
+44,Jordan Lawlar,ARI,SS/3B,44. Jordan Lawlar,"ARI, SS/3B","44. Jordan Lawlar, SS/3B (ARI)",22,"STL, SS",,"STL, SS"
+45,Drake Baldwin,ATL,C,45. Drake Baldwin,"ATL, C","45. Drake Baldwin, C (ATL)",23,23. Kevin McGonigle,,23. Kevin McGonigle
+46,Tink Hence,STL,RHP,46. Tink Hence,"STL, RHP","46. Tink Hence, RHP (STL)",23,"DET, SS/2B",,"DET, SS/2B"
+47,Jett Williams,NYM,SS/2B/OF,47. Jett Williams,"NYM, SS/2B/OF","47. Jett Williams, SS/2B/OF (NYM)",24,24. Nick Kurtz,,24. Nick Kurtz
+48,Alejandro Rosario,TEX,RHP,48. Alejandro Rosario,"TEX, RHP","48. Alejandro Rosario, RHP (TEX)",24,"OAK, 1B",,"OAK, 1B"
+49,Grant Taylor ,CWS,RHP,49. Grant Taylor ,"CWS, RHP","49. Grant Taylor , RHP (CWS)",25,25. Coby Mayo,,25. Coby Mayo
+50,Cade Horton,CHC,RHP,50. Cade Horton,"CHC, RHP","50. Cade Horton, RHP (CHC)",25,"BAL, 3B",,"BAL, 3B"
+51,Christian Moore,LAA,2B,51. Christian Moore,"LAA, 2B","51. Christian Moore, 2B (LAA)",26,26. Walker Jenkins,,26. Walker Jenkins
+52,Travis Sykora,WSH,RHP,52. Travis Sykora,"WSH, RHP","52. Travis Sykora, RHP (WSH)",26,"MIN, OF",,"MIN, OF"
+53,Jaison Chourio,CLE,OF,53. Jaison Chourio,"CLE, OF","53. Jaison Chourio, OF (CLE)",27,27. Bryce Eldridge,,27. Bryce Eldridge
+54,Jeferson Quero,MIL,C,54. Jeferson Quero,"MIL, C","54. Jeferson Quero, C (MIL)",27,"SF, 1B",,"SF, 1B"
+55,Jasson Dominguez,NYY,OF,55. Jasson Dominguez,"NYY, OF","55. Jasson Dominguez, OF (NYY)",28,28. Kyle Teel,,28. Kyle Teel
+56,Starlyn Caba,MIA,SS,56. Starlyn Caba,"MIA, SS","56. Starlyn Caba, SS (MIA)",28,"CWS, C",,"CWS, C"
+57,Colson Montgomery ,CWS,SS,57. Colson Montgomery ,"CWS, SS","57. Colson Montgomery , SS (CWS)",29,29. Cam Smith,,29. Cam Smith
+58,Luke Keaschall,MIN,2B,58. Luke Keaschall,"MIN, 2B","58. Luke Keaschall, 2B (MIN)",29,"HOU, 3B",,"HOU, 3B"
+59,Xavier Isaac,TB,1B,59. Xavier Isaac,"TB, 1B","59. Xavier Isaac, 1B (TB)",30,30. Brandon Sproat,,30. Brandon Sproat
+60,Josue De Paula,LAD,OF,60. Josue De Paula,"LAD, OF","60. Josue De Paula, OF (LAD)",30,"NYM, RHP",,"NYM, RHP"
+61,Ethan Salas,SD,C,61. Ethan Salas,"SD, C","61. Ethan Salas, C (SD)",31,31. Aidan Miller,,31. Aidan Miller
+62,Moises Ballesteros,CHC,C,62. Moises Ballesteros,"CHC, C","62. Moises Ballesteros, C (CHC)",31,"PHI, SS",,"PHI, SS"
+63,Cole Young,SEA,SS,63. Cole Young,"SEA, SS","63. Cole Young, SS (SEA)",32,32. Chase Burns,,32. Chase Burns
+64,Trey Yesavage,TOR,RHP,64. Trey Yesavage,"TOR, RHP","64. Trey Yesavage, RHP (TOR)",32,"CIN, RHP",,"CIN, RHP"
+65,Santiago Suarez,TB,RHP,65. Santiago Suarez,"TB, RHP","65. Santiago Suarez, RHP (TB)",33,33. Quinn Mathews,,33. Quinn Mathews
+66,Edgar Quero ,CWS,C,66. Edgar Quero ,"CWS, C","66. Edgar Quero , C (CWS)",33,"STL, LHP",,"STL, LHP"
+67,Cooper Pratt,MIL,SS,67. Cooper Pratt,"MIL, SS","67. Cooper Pratt, SS (MIL)",34,34. Marcelo Mayer,,34. Marcelo Mayer
+68,Bryce Rainer,DET,SS,68. Bryce Rainer,"DET, SS","68. Bryce Rainer, SS (DET)",34,"BOS, SS",,"BOS, SS"
+69,Jonny Farmelo,SEA,OF,69. Jonny Farmelo,"SEA, OF","69. Jonny Farmelo, OF (SEA)",35,35. Zyhir Hope,,35. Zyhir Hope
+70,Charlie Condon,COL,OF,70. Charlie Condon,"COL, OF","70. Charlie Condon, OF (COL)",35,"LAD, OF",,"LAD, OF"
+71,Kevin Alcantara,CHC,OF,71. Kevin Alcantara,"CHC, OF","71. Kevin Alcantara, OF (CHC)",36,36. Hagen Smith,,36. Hagen Smith
+72,Rhett Lowder,CIN,RHP,72. Rhett Lowder,"CIN, RHP","72. Rhett Lowder, RHP (CIN)",36,"CWS, LHP",,"CWS, LHP"
+73,Aidan Smith,TB,OF,73. Aidan Smith,"TB, OF","73. Aidan Smith, OF (TB)",37,37. Jac Caglianone,,37. Jac Caglianone
+74,Thayron Liranzo,DET,C,74. Thayron Liranzo,"DET, C","74. Thayron Liranzo, C (DET)",37,"KC, 1B",,"KC, 1B"
+75,Demetrio Crisantes,ARI,SS/2B,75. Demetrio Crisantes,"ARI, SS/2B","75. Demetrio Crisantes, SS/2B (ARI)",38,38. Chase DeLauter,,38. Chase DeLauter
+76,Chandler Simpson,TB,OF,76. Chandler Simpson,"TB, OF","76. Chandler Simpson, OF (TB)",38,"CLE, OF",,"CLE, OF"
+77,Michael Arroyo,SEA,SS,77. Michael Arroyo,"SEA, SS","77. Michael Arroyo, SS (SEA)",39,39. Jacob Wilson,,39. Jacob Wilson
+78,Arjun Nimmala,TOR,SS,78. Arjun Nimmala,"TOR, SS","78. Arjun Nimmala, SS (TOR)",39,"OAK, SS",,"OAK, SS"
+79,Justin Crawford,PHI,OF,79. Justin Crawford,"PHI, OF","79. Justin Crawford, OF (PHI)",40,40. Thomas White,,40. Thomas White
+80,Blake Mitchell,KC,C,80. Blake Mitchell,"KC, C","80. Blake Mitchell, C (KC)",40,"MIA, LHP",,"MIA, LHP"
+81,Alex Freeland,LAD,SS,81. Alex Freeland,"LAD, SS","81. Alex Freeland, SS (LAD)",41,41. Jarlin Susana,,41. Jarlin Susana
+82,Josue Briceno ,DET,C/1B,82. Josue Briceno ,"DET, C/1B","82. Josue Briceno , C/1B (DET)",41,"WSH, RHP",,"WSH, RHP"
+83,Tre' Morgan,TB,1B,83. Tre' Morgan,"TB, 1B","83. Tre' Morgan, 1B (TB)",42,42. Konnor Griffin,,42. Konnor Griffin
+84,Chase Petty,CIN,RHP,84. Chase Petty,"CIN, RHP","84. Chase Petty, RHP (CIN)",42,"PIT, SS/OF",,"PIT, SS/OF"
+85,Brody Hopkins,TB,RHP,85. Brody Hopkins,"TB, RHP","85. Brody Hopkins, RHP (TB)",43,43. Jacob Misiorowski,,43. Jacob Misiorowski
+86,Felnin Celesten,SEA,SS,86. Felnin Celesten,"SEA, SS","86. Felnin Celesten, SS (SEA)",43,"MIL, RHP",,"MIL, RHP"
+87,Edwin Arroyo,CIN,SS,87. Edwin Arroyo,"CIN, SS","87. Edwin Arroyo, SS (CIN)",44,44. Jordan Lawlar,,44. Jordan Lawlar
+88,Braden Montgomery,CWS,OF,88. Braden Montgomery,"CWS, OF","88. Braden Montgomery, OF (CWS)",44,"ARI, SS/3B",,"ARI, SS/3B"
+89,Adrian Del Castillo,ARI,C,89. Adrian Del Castillo,"ARI, C","89. Adrian Del Castillo, C (ARI)",45,45. Drake Baldwin,,45. Drake Baldwin
+90,Thomas Harrington,PIT,RHP,90. Thomas Harrington,"PIT, RHP","90. Thomas Harrington, RHP (PIT)",45,"ATL, C",,"ATL, C"
+91,Harry Ford,SEA,C,91. Harry Ford,"SEA, C","91. Harry Ford, C (SEA)",46,46. Tink Hence,,46. Tink Hence
+92,Owen Caissie,CHC,OF,92. Owen Caissie,"CHC, OF","92. Owen Caissie, OF (CHC)",46,"STL, RHP",,"STL, RHP"
+93,CJ Kayfus,CLE,1B,93. CJ Kayfus,"CLE, 1B","93. CJ Kayfus, 1B (CLE)",47,47. Jett Williams,,47. Jett Williams
+94,Caden Dana,LAA,RHP,94. Caden Dana,"LAA, RHP","94. Caden Dana, RHP (LAA)",47,"NYM, SS/2B/OF",,"NYM, SS/2B/OF"
+95,Carter Jensen,KC,C,95. Carter Jensen,"KC, C","95. Carter Jensen, C (KC)",48,48. Alejandro Rosario,,48. Alejandro Rosario
+96,Ryan Waldschmidt,ARI,OF,96. Ryan Waldschmidt,"ARI, OF","96. Ryan Waldschmidt, OF (ARI)",48,"TEX, RHP",,"TEX, RHP"
+97,Jacob Melton,HOU,OF,97. Jacob Melton,"HOU, OF","97. Jacob Melton, OF (HOU)",49,49. Grant Taylor ,,49. Grant Taylor 
+98,Lazaro Montes,SEA,OF,98. Lazaro Montes,"SEA, OF","98. Lazaro Montes, OF (SEA)",49,"CWS, RHP",,"CWS, RHP"
+99,Robert Calaz,COL,OF,99. Robert Calaz,"COL, OF","99. Robert Calaz, OF (COL)",50,50. Cade Horton,,50. Cade Horton
+100,Agustin Ramirez,MIA,C,100. Agustin Ramirez,"MIA, C","100. Agustin Ramirez, C (MIA)",50,"CHC, RHP",,"CHC, RHP"
+101,Seaver King,,,,,"101. Seaver King,  ()",51,51. Christian Moore,,51. Christian Moore
+102,George Lombard Jr.,,,,,"102. George Lombard Jr.,  ()",51,"LAA, 2B",,"LAA, 2B"
+103,Alfredo Duno,,,,,"103. Alfredo Duno,  ()",52,52. Travis Sykora,,52. Travis Sykora
+104,Brayden Taylor,,,,,"104. Brayden Taylor,  ()",52,"WSH, RHP",,"WSH, RHP"
+104,Jackson Ferris,,,,,"104. Jackson Ferris,  ()",53,53. Jaison Chourio,,53. Jaison Chourio
+106,Cam Collier,,,,,"106. Cam Collier,  ()",53,"CLE, OF",,"CLE, OF"
+106,Moises Chace,,,,,"106. Moises Chace,  ()",54,54. Jeferson Quero,,54. Jeferson Quero
+108,Slade Caldwell,,,,,"108. Slade Caldwell,  ()",54,"MIL, C",,"MIL, C"
+108,Logan Henderson,,,,,"108. Logan Henderson,  ()",55,55. Jasson Dominguez,,55. Jasson Dominguez
+110,Adael Amador,,,,,"110. Adael Amador,  ()",55,"NYY, OF",,"NYY, OF"
+111,Blake Mitchell,,,,,"111. Blake Mitchell,  ()",56,56. Starlyn Caba,,56. Starlyn Caba
+112,Eduardo Tait,,,,,"112. Eduardo Tait,  ()",56,"MIA, SS",,"MIA, SS"
+113,Jimmy Crooks,,,,,"113. Jimmy Crooks,  ()",57,57. Colson Montgomery ,,57. Colson Montgomery 
+114,Franklin Arias,,,,,"114. Franklin Arias,  ()",57,"CWS, SS",,"CWS, SS"
+114,AJ Smith-Shawver,,,,,"114. AJ Smith-Shawver,  ()",58,58. Luke Keaschall,,58. Luke Keaschall
+114,Angel Genao,,,,,"114. Angel Genao,  ()",58,"MIN, 2B",,"MIN, 2B"
+114,Jace Jung,,,,,"114. Jace Jung,  ()",59,59. Xavier Isaac,,59. Xavier Isaac
+114,Zebby Matthews,,,,,"114. Zebby Matthews,  ()",59,"TB, 1B",,"TB, 1B"
+114,Sean Burke,,,,,"114. Sean Burke,  ()",60,60. Josue De Paula,,60. Josue De Paula
+114,Braxton Ashcraft,,,,,"114. Braxton Ashcraft,  ()",60,"LAD, OF",,"LAD, OF"
+114,Gary Gill Hill,,,,,"114. Gary Gill Hill,  ()",61,61. Ethan Salas,,61. Ethan Salas
+114,Sal Stewart,,,,,"114. Sal Stewart,  ()",61,"SD, C",,"SD, C"
+114,Yoniel Curet,,,,,"114. Yoniel Curet,  ()",62,62. Moises Ballesteros,,62. Moises Ballesteros
+114,Termarr Johnson,,,,,"114. Termarr Johnson,  ()",62,"CHC, C",,"CHC, C"
+114,Temarr Johnson,,,,,"114. Temarr Johnson,  ()",63,63. Cole Young,,63. Cole Young
+114,James Triantos,,,,,"114. James Triantos,  ()",63,"SEA, SS",,"SEA, SS"
+114,Cole Carrigg,,,,,"114. Cole Carrigg,  ()",64,64. Trey Yesavage,,64. Trey Yesavage
+114,Luisangel Acuna,,,,,"114. Luisangel Acuna,  ()",64,"TOR, RHP",,"TOR, RHP"
+114,Yoeilin Cespedes,,,,,"114. Yoeilin Cespedes,  ()",65,65. Santiago Suarez,,65. Santiago Suarez
+114,Welbyn Francisca,,,,,"114. Welbyn Francisca,  ()",65,"TB, RHP",,"TB, RHP"
+114,Ronny Mauricio,,,,,"114. Ronny Mauricio,  ()",66,66. Edgar Quero ,,66. Edgar Quero 
+114,Carson Whisenhunt,,,,,"114. Carson Whisenhunt,  ()",66,"CWS, C",,"CWS, C"
+114,Hurston Waldrep,,,,,"114. Hurston Waldrep,  ()",67,67. Cooper Pratt,,67. Cooper Pratt
+114,Owen Murphy,,,,,"114. Owen Murphy,  ()",67,"MIL, SS",,"MIL, SS"
+114,Robby Snelling,,,,,"114. Robby Snelling,  ()",68,68. Bryce Rainer,,68. Bryce Rainer
+114,Cam Caminiti,,,,,"114. Cam Caminiti,  ()",68,"DET, SS",,"DET, SS"
+114,Cooper Ingle,,,,,"114. Cooper Ingle,  ()",69,69. Jonny Farmelo,,69. Jonny Farmelo
+114,Orelvis Martinez,,,,,"114. Orelvis Martinez,  ()",69,"SEA, OF",,"SEA, OF"
+114,Luke Adams,,,,,"114. Luke Adams,  ()",70,70. Charlie Condon,,70. Charlie Condon
+114,Robert Calaz,,,,,"114. Robert Calaz,  ()",70,"COL, OF",,"COL, OF"
+114,Noble Meyer,,,,,"114. Noble Meyer,  ()",71,71. Kevin Alcantara,,71. Kevin Alcantara
+114,Drue Hackenburg,,,,,"114. Drue Hackenburg,  ()",71,"CHC, OF",,"CHC, OF"
+114,Will Warren,,,,,"114. Will Warren,  ()",72,72. Rhett Lowder,,72. Rhett Lowder
+114,Eric Bitonti,,,,,"114. Eric Bitonti,  ()",72,"CIN, RHP",,"CIN, RHP"
+114,Tyson Lewis,,,,,"114. Tyson Lewis,  ()",73,73. Aidan Smith,,73. Aidan Smith
+114,Jake Bloss,,,,,"114. Jake Bloss,  ()",73,"TB, OF",,"TB, OF"
+114,Jaden Hamm,,,,,"114. Jaden Hamm,  ()",74,74. Thayron Liranzo,,74. Thayron Liranzo
+114,George Klassen,,,,,"114. George Klassen,  ()",74,"DET, C",,"DET, C"
+114,Parker Messick,,,,,"114. Parker Messick,  ()",75,75. Demetrio Crisantes,,75. Demetrio Crisantes
+114,Kaeln Culpepper,,,,,"114. Kaeln Culpepper,  ()",75,"ARI, SS/2B",,"ARI, SS/2B"
+114,Joe Mack,,,,,"114. Joe Mack,  ()",76,76. Chandler Simpson,,76. Chandler Simpson
+114,Emiliano Teodo,,,,,"114. Emiliano Teodo,  ()",76,"TB, OF",,"TB, OF"
+114,Theo Gillen,,,,,"114. Theo Gillen,  ()",77,77. Michael Arroyo,,77. Michael Arroyo
+114,Ricky Tiedemann,,,,,"114. Ricky Tiedemann,  ()",77,"SEA, SS",,"SEA, SS"
+114,Nacho Alvarez,,,,,"114. Nacho Alvarez,  ()",78,78. Arjun Nimmala,,78. Arjun Nimmala
+114,Chase Meidroth,,,,,"114. Chase Meidroth,  ()",78,"TOR, SS",,"TOR, SS"
+,,,,,,,79,79. Justin Crawford,,79. Justin Crawford
+,,,,,,,79,"PHI, OF",,"PHI, OF"
+,,,,,,,80,80. Blake Mitchell,,80. Blake Mitchell
+,,,,,,,80,"KC, C",,"KC, C"
+,,,,,,,81,81. Alex Freeland,,81. Alex Freeland
+,,,,,,,81,"LAD, SS",,"LAD, SS"
+,,,,,,,82,82. Josue Briceno ,,82. Josue Briceno 
+,,,,,,,82,"DET, C/1B",,"DET, C/1B"
+,,,,,,,83,83. Tre' Morgan,,83. Tre' Morgan
+,,,,,,,83,"TB, 1B",,"TB, 1B"
+,,,,,,,84,84. Chase Petty,,84. Chase Petty
+,,,,,,,84,"CIN, RHP",,"CIN, RHP"
+,,,,,,,85,85. Brody Hopkins,,85. Brody Hopkins
+,,,,,,,85,"TB, RHP",,"TB, RHP"
+,,,,,,,86,86. Felnin Celesten,,86. Felnin Celesten
+,,,,,,,86,"SEA, SS",,"SEA, SS"
+,,,,,,,87,87. Edwin Arroyo,,87. Edwin Arroyo
+,,,,,,,87,"CIN, SS",,"CIN, SS"
+,,,,,,,88,88. Braden Montgomery,,88. Braden Montgomery
+,,,,,,,88,"CWS, OF",,"CWS, OF"
+,,,,,,,89,89. Adrian Del Castillo,,89. Adrian Del Castillo
+,,,,,,,89,"ARI, C",,"ARI, C"
+,,,,,,,90,90. Thomas Harrington,,90. Thomas Harrington
+,,,,,,,90,"PIT, RHP",,"PIT, RHP"
+,,,,,,,91,91. Harry Ford,,91. Harry Ford
+,,,,,,,91,"SEA, C",,"SEA, C"
+,,,,,,,92,92. Owen Caissie,,92. Owen Caissie
+,,,,,,,92,"CHC, OF",,"CHC, OF"
+,,,,,,,93,93. CJ Kayfus,,93. CJ Kayfus
+,,,,,,,93,"CLE, 1B",,"CLE, 1B"
+,,,,,,,94,94. Caden Dana,,94. Caden Dana
+,,,,,,,94,"LAA, RHP",,"LAA, RHP"
+,,,,,,,95,95. Carter Jensen,,95. Carter Jensen
+,,,,,,,95,"KC, C",,"KC, C"
+,,,,,,,96,96. Ryan Waldschmidt,,96. Ryan Waldschmidt
+,,,,,,,96,"ARI, OF",,"ARI, OF"
+,,,,,,,97,97. Jacob Melton,,97. Jacob Melton
+,,,,,,,97,"HOU, OF",,"HOU, OF"
+,,,,,,,98,98. Lazaro Montes,,98. Lazaro Montes
+,,,,,,,98,"SEA, OF",,"SEA, OF"
+,,,,,,,99,99. Robert Calaz,,99. Robert Calaz
+,,,,,,,99,"COL, OF",,"COL, OF"
+,,,,,,,100,100. Agustin Ramirez,,100. Agustin Ramirez
+,,,,,,,100,"MIA, C",,"MIA, C"

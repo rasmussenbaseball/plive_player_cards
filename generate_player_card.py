@@ -1,8 +1,11 @@
 import os
 import csv
+import glob
 import requests
 from PIL import Image, ImageDraw, ImageFont
-from bs4 import BeautifulSoup
+from io import BytesIO
+
+from pybaseball.playerid_lookup import playerid_lookup  # Fallback lookup
 
 # ---- CONFIG ----
 
@@ -10,12 +13,15 @@ FONT_PATH_BOLD = "cooper-hewitt/CooperHewitt-Bold.otf"
 FONT_PATH_MEDIUM = "cooper-hewitt/CooperHewitt-Medium.otf"
 CSV_FILE = "plive_hitters.csv"
 TOP100_CSV_FILE = "plive_top_100.csv"
-LOGO_FILE = "plive_logo.png"  # Your logo file
+OS_CSV_FILE = "OS_full_org_list.csv"
+LOGO_FILE = "plive_logo.png"
+MLB_LOGOS_CSV = "mlbLogos.csv"
+MLBAM_ID_CACHE = "mlbam_id_cache.csv"  # Local cache for speed
 
 CARD_WIDTH, CARD_HEIGHT = 900, 920
 BG_COLOR = (11, 27, 45)
 
-MARGIN = 56  # Left/right margin for all top and bottom boxes (aligns with bottom boxes)
+MARGIN = 56
 SIDE_MARGIN = MARGIN
 TOP_MARGIN = 32
 ROW_GAP = 12
@@ -26,20 +32,14 @@ INFO_BOX_HEIGHT = 56
 INFO_BOX_FONT_SIZE = 36
 INFO_BOX_GAP = 16
 
-RANK_BOX_HEIGHT = 56
-RANK_BOX_FONT_SIZE = 30
-RANK_LABEL_FONT_SIZE = 15
-
-PLIVE_BOX_WIDTH = 180
-PLIVE_BOX_BORDER = 7
+RANK_LABEL_FONT_SIZE = 28  # Larger for top 100/plive+ rank
+RANK_NUMBER_FONT_SIZE = 54
 
 PHOTO_BOX_BORDER = 3
 
 BOTTOM_BOX_WIDTH = 392
 BOTTOM_BOX_HEIGHT = 490
 BOTTOM_BOX_BORDER = 7
-
-TEAM_CIRCLE_RADIUS = 34
 
 FOOTER_TEXT_SIZE = 48
 FOOTER_ITALIC_PATH = "cooper-hewitt/CooperHewitt-BoldItalic.otf"
@@ -60,63 +60,109 @@ STAT_COLOR_RULES = {
     "HR":  {"gray": (15, 23), "reverse": False},
     "SB":  {"gray": (9, 15), "reverse": False}
 }
-SCOUT_GRADE_RULES = { "gray": (45, 55) }
+SCOUT_GRADE_RULES = {"gray": (45, 55)}
+SCOUT_GRADE_LABELS = ["OFP", "Hit", "Power", "Field", "Arm", "Run"]
 
+#################### MLBAM ID UTILITIES ########################
 
-def fetch_player_info_online(player_name):
-    """
-    Attempts to find Position, B/T, Team, and Level for a player using Baseball Reference.
-    Returns a dictionary with any found keys.
-    """
-    from urllib.parse import quote
+def load_chadwick_ids(folder="people"):
+    id_map = {}
+    for filename in glob.glob(os.path.join(folder, "people-*.csv")):
+        with open(filename, newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                first = row['name_first'].strip().lower()
+                last = row['name_last'].strip().lower()
+                full_name = f"{first} {last}"
+                mlbam_id = row['key_mlbam'].strip()
+                if mlbam_id:
+                    id_map[full_name] = mlbam_id
+    return id_map
 
-    query = f"{player_name} site:baseball-reference.com/register"
-    search_url = f"https://www.bing.com/search?q={quote(query)}"
+def load_mlbam_cache(cache_file):
+    cache = {}
+    if os.path.exists(cache_file):
+        with open(cache_file, newline="", encoding="utf-8") as f:
+            reader = csv.reader(f)
+            for row in reader:
+                if len(row) >= 2:
+                    cache[row[0].upper()] = row[1]
+    return cache
+
+def save_mlbam_cache(cache, cache_file):
+    with open(cache_file, "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        for key, val in cache.items():
+            writer.writerow([key, val])
+
+def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
+    # 1. Try Chadwick Bureau first
+    if chadwick_ids is not None:
+        parts = player_name.strip().lower().split()
+        if len(parts) >= 2:
+            full_name = f"{parts[0]} {parts[-1]}"
+            mlbam_id = chadwick_ids.get(full_name)
+            if mlbam_id:
+                if cache is not None:
+                    cache[player_name.upper()] = mlbam_id
+                return mlbam_id
+    # 2. Fallback to cache
+    key = player_name.upper()
+    if cache and key in cache:
+        return cache[key]
+    # 3. Fallback to pybaseball
+    parts = player_name.strip().split()
+    if len(parts) < 2:
+        return None
+    first, last = parts[0], parts[-1]
     try:
-        r = requests.get(search_url, timeout=10)
-    except Exception:
-        return {}
-    soup = BeautifulSoup(r.text, "html.parser")
+        lookup = playerid_lookup(last, first)
+        if lookup.empty:
+            return None
+        if team:
+            lookup_team = lookup[lookup['team'].str.upper() == team.upper()]
+            if not lookup_team.empty:
+                mlbam_id = int(lookup_team.iloc[0]['key_mlbam'])
+            else:
+                mlbam_id = int(lookup.iloc[0]['key_mlbam'])
+        else:
+            mlbam_id = int(lookup.iloc[0]['key_mlbam'])
+        if cache is not None:
+            cache[key] = str(mlbam_id)
+        return str(mlbam_id)
+    except Exception as e:
+        print(f"MLBAM lookup failed for {player_name}: {e}")
+        return None
 
-    bbref_url = None
-    for a in soup.find_all('a', href=True):
-        href = a['href']
-        if "baseball-reference.com/register/player" in href:
-            bbref_url = href
-            break
-    if not bbref_url:
-        return {}  # Not found
+def get_headshot_url(mlbam_id):
+    return f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/67/current.png"
 
+def fetch_headshot_image(url):
     try:
-        r = requests.get(bbref_url, timeout=10)
-    except Exception:
-        return {}
-    soup = BeautifulSoup(r.text, "html.parser")
-    info = {}
+        resp = requests.get(url, timeout=8)
+        img = Image.open(BytesIO(resp.content)).convert("RGBA")
+        return img
+    except Exception as e:
+        print(f"Error fetching headshot: {url} ({e})")
+        return None
 
-    bt_div = soup.find('div', attrs={'itemtype': 'https://schema.org/Person'})
-    if bt_div:
-        text = bt_div.get_text()
-        import re
-        bt_match = re.search(r"Bats: (.+?) • Throws: (.+)", text)
-        if bt_match:
-            info['B/T'] = f"{bt_match.group(1)[0]}/{bt_match.group(2)[0]}"
-        pos_match = re.search(r"Position: ([A-Za-z, /-]+)", text)
-        if pos_match:
-            info['Position'] = pos_match.group(1).split(',')[0].strip()
-    table = soup.find('table', id='standard_batting')
-    if table:
-        rows = table.find_all('tr')
-        for row in reversed(rows):
-            team_cell = row.find('td', {'data-stat': 'team_ID'})
-            level_cell = row.find('td', {'data-stat': 'lg_ID'})
-            if team_cell and team_cell.text.strip():
-                info['Team'] = team_cell.text.strip()
-                if level_cell and level_cell.text.strip():
-                    info['Level'] = level_cell.text.strip()
-                break
-    return info
+def resize_and_center(img, target_box):
+    """
+    Resize img to fit inside target_box (x0, y0, x1, y1) without distortion.
+    Returns resized_img, offset_x, offset_y.
+    """
+    box_w = target_box[2] - target_box[0]
+    box_h = target_box[3] - target_box[1]
+    img_w, img_h = img.size
+    scale = min(box_w / img_w, box_h / img_h)
+    new_w = int(img_w * scale)
+    new_h = int(img_h * scale)
+    resized_img = img.resize((new_w, new_h), Image.LANCZOS)
+    offset_x = target_box[0] + (box_w - new_w) // 2
+    offset_y = target_box[1] + (box_h - new_h) // 2
+    return resized_img, offset_x, offset_y
 
+###############################################################
 
 def load_font(size, bold=False, medium=False, italic=False):
     if italic:
@@ -166,6 +212,9 @@ def color_for_grade(value):
     else:
         return COLOR_GRAY
 
+def draw_box(draw, box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=7):
+    draw.rectangle(box, fill=fill, outline=outline, width=width)
+
 def draw_centered(draw, text, box, font, fill):
     bbox = draw.textbbox((0, 0), str(text), font=font)
     w = bbox[2] - bbox[0]
@@ -174,21 +223,32 @@ def draw_centered(draw, text, box, font, fill):
     y = box[1] + (box[3] - box[1] - h) // 2
     draw.text((x, y), str(text), font=font, fill=fill)
 
-def draw_box(draw, box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=7):
-    draw.rectangle(box, fill=fill, outline=outline, width=width)
+def draw_rank_box_vertical(draw, box, title, number, title_font, number_font, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4):
+    draw_box(draw, box, fill=fill, outline=outline, width=width)
+    x0, y0, x1, y1 = box
+    box_w = x1 - x0
+    box_h = y1 - y0
+
+    # Draw title (centered at top)
+    title_h = title_font.getbbox(title)[3] - title_font.getbbox(title)[1]
+    title_y = y0 + 10
+    title_x = x0 + (box_w - (title_font.getbbox(title)[2] - title_font.getbbox(title)[0])) // 2
+    draw.text((title_x, title_y), title, font=title_font, fill=COLOR_BLACK)
+
+    # Draw number (centered, below title)
+    number_str = str(number)
+    num_h = number_font.getbbox(number_str)[3] - number_font.getbbox(number_str)[1]
+    num_w = number_font.getbbox(number_str)[2] - number_font.getbbox(number_str)[0]
+    num_x = x0 + (box_w - num_w) // 2
+    num_y = title_y + title_h + 10 + (box_h - title_h - 20 - num_h) // 2
+    draw.text((num_x, num_y), number_str, font=number_font, fill=COLOR_BLACK)
 
 def load_top_100(csv_file):
-    """Returns a dict {player_name_upper: rank (str/int)}"""
     top100 = {}
     with open(csv_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if "Name" in row:
-                pname = row["Name"].strip().upper()
-            elif "Player" in row:
-                pname = row["Player"].strip().upper()
-            else:
-                continue
+            pname = row["Prospects"].strip().upper()
             rank = row.get("Rank", "").strip()
             if rank.isdigit():
                 top100[pname] = str(int(rank))
@@ -197,53 +257,75 @@ def load_top_100(csv_file):
     return top100
 
 def fill_missing_player_info(player):
-    """
-    For a dict player, check for missing Position, B/T, Team, Level.
-    If missing, attempts to fetch from Baseball Reference.
-    Updates player in place.
-    """
-    missing_keys = [k for k in ['Position', 'B/T', 'Team', 'Level'] if not player.get(k) or player[k].strip() == ""]
-    if missing_keys:
-        web_info = fetch_player_info_online(player['Name'])
-        for k in missing_keys:
-            if k in web_info:
-                player[k] = web_info[k]
+    pass
 
-def draw_player_card(player, top100_map, outfile="player_card.png"):
+def get_pliveplus_ranks(csv_file):
+    plive_ranks = {}
+    with open(csv_file, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for idx, row in enumerate(reader):
+            pname = row["Name"].strip().upper()
+            plive_ranks[pname] = str(idx + 1)
+    return plive_ranks
+
+def get_os_positions_and_grades(os_csv_file):
+    os_positions = {}
+    os_grades = {}
+    with open(os_csv_file, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            name_col = None
+            for key in row.keys():
+                if key.strip().lower() == "name":
+                    name_col = key
+                    break
+            if not name_col:
+                continue
+            pname = row[name_col].strip().upper()
+            pos = row.get("Position", "").strip()
+            os_positions[pname] = pos
+            grades = {}
+            for label in SCOUT_GRADE_LABELS:
+                grades[label] = row.get(label, "").strip()
+            os_grades[pname] = grades
+    return os_positions, os_grades
+
+def get_mlb_logo_urls(mlb_logos_csv):
+    team_logo_map = {}
+    with open(mlb_logos_csv, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            team_abbr = row["TeamShort"].strip().upper()
+            url = row["url"].strip()
+            team_logo_map[team_abbr] = url
+    return team_logo_map
+
+def fetch_logo_image(url, size):
+    try:
+        resp = requests.get(url, timeout=8)
+        img = Image.open(BytesIO(resp.content)).convert("RGBA")
+        img = img.resize((size, size), Image.LANCZOS)
+        return img
+    except Exception as e:
+        print(f"Error fetching logo: {url} ({e})")
+        return None
+
+def draw_player_card(player, top100_map, pliveplus_ranks, os_positions, os_grades, mlb_logo_urls, mlbam_cache, chadwick_ids, outfile="player_card.png"):
     img = Image.new("RGB", (CARD_WIDTH, CARD_HEIGHT), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
     # --- FONTS ---
     name_font = load_font(NAME_FONT_SIZE, bold=True)
     info_font = load_font(INFO_BOX_FONT_SIZE, bold=True)
-    rank_font = load_font(RANK_BOX_FONT_SIZE, bold=True)
-    rank_label_font = load_font(RANK_LABEL_FONT_SIZE)
-    plive_title_font = load_font(24, bold=True)
-    plive_score_font = load_font(66, bold=True)
-    plive_small_font = load_font(20)
     bottom_section_title_font_big = load_font(32, bold=True)
     stat_label_font = load_font(28, bold=True)
     stat_value_font = load_font(50, bold=True)
     grade_font = load_font(48, bold=True)
     grade_label_font = load_font(29, bold=True)
     footer_font = load_font(FOOTER_TEXT_SIZE, italic=True)
+    rank_label_font = load_font(RANK_LABEL_FONT_SIZE, bold=True)
+    rank_number_font = load_font(RANK_NUMBER_FONT_SIZE, bold=True)
 
-    # --- TEAM LOGO CIRCLE ---
-    circle_y = TOP_MARGIN + NAME_FONT_SIZE // 2 + 2
-    circle_x = SIDE_MARGIN + TEAM_CIRCLE_RADIUS
-    draw.ellipse(
-        (
-            circle_x - TEAM_CIRCLE_RADIUS,
-            circle_y - TEAM_CIRCLE_RADIUS,
-            circle_x + TEAM_CIRCLE_RADIUS,
-            circle_y + TEAM_CIRCLE_RADIUS,
-        ),
-        fill=COLOR_WHITE,
-        outline=COLOR_BLACK,
-        width=4
-    )
-
-    # --- NAME (centered at top) ---
     name_text = player["Name"].upper()
     name_font_bbox = name_font.getbbox(name_text)
     name_text_w = name_font_bbox[2] - name_font_bbox[0]
@@ -251,78 +333,90 @@ def draw_player_card(player, top100_map, outfile="player_card.png"):
     name_y = TOP_MARGIN
     draw.text((name_x, name_y), name_text, font=name_font, fill=COLOR_WHITE)
 
-    # --- INFO GRID (2x3), left-aligned with bottom box edge ---
+    # --- INFO SECTION (NEW LAYOUT) ---
     grid_left = SIDE_MARGIN
     grid_top = name_y + NAME_FONT_SIZE + ROW_GAP + 6
     grid_cell_w = (BOTTOM_BOX_WIDTH - INFO_BOX_GAP) // 2
     grid_cell_h = INFO_BOX_HEIGHT
     grid_v_gap = 10
 
-    # --- Top 100 logic ---
     player_name_upper = player["Name"].strip().upper()
     top100_rank = top100_map.get(player_name_upper, "NR")
+    pliveplus_rank = pliveplus_ranks.get(player_name_upper, "NR")
+    player_pos = os_positions.get(player_name_upper, "")
 
-    # --- INFO GRID (2x3), use actual Team and Position fields from CSV or auto-filled ---
-    info_grid = [
-        (player.get("Position", "POS"), player.get("B/T", "B/T")),
-        (player.get("Level", "LEVEL"), player.get("Team", "TEAM")),
-        (top100_rank, player.get("PLIVE+ Rank", "PLIVE+ RANK"))
-    ]
-    for row in range(3):
-        for col in range(2):
-            x0 = grid_left + col * (grid_cell_w + INFO_BOX_GAP)
-            y0 = grid_top + row * (grid_cell_h + grid_v_gap)
-            box = (x0, y0, x0 + grid_cell_w, y0 + grid_cell_h)
-            draw_box(draw, box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4)
-            draw_centered(draw, info_grid[row][col], box, info_font, COLOR_BLACK)
+    # Info box positions for new layout
+    # Top row: OF (left), Level (right)
+    info_top_y = grid_top
+    info_box_left = (grid_left, info_top_y, grid_left + grid_cell_w, info_top_y + grid_cell_h)
+    info_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, info_top_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, info_top_y + grid_cell_h)
+    draw_box(draw, info_box_left, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4)
+    draw_centered(draw, player_pos, info_box_left, info_font, COLOR_BLACK)
+    draw_box(draw, info_box_right, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4)
+    draw_centered(draw, player.get("Level", "LEVEL"), info_box_right, info_font, COLOR_BLACK)
 
-    # --- Calculate total info grid height for PLIVE+/photo alignment ---
-    info_grid_right = grid_left + 2 * grid_cell_w + INFO_BOX_GAP
-    info_grid_bottom = grid_top + 3 * grid_cell_h + 2 * grid_v_gap
-    info_section_top = grid_top
-    info_section_bottom = info_grid_bottom
-
-    # --- PLIVE+ BOX (aligned right above Peak Projections box) ---
-    plive_x = SIDE_MARGIN + BOTTOM_BOX_WIDTH + BOX_GAP
-    plive_y = info_section_top
-    plive_box = (plive_x, plive_y, plive_x + PLIVE_BOX_WIDTH, info_section_bottom)
-    draw_box(draw, plive_box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=PLIVE_BOX_BORDER)
-
-    # Title, moved down for spacing
-    box_width = plive_box[2] - plive_box[0]
-    box_height = plive_box[3] - plive_box[1]
-    title_h = 36
-    title_y_offset = 14
-    draw_centered(
-        draw,
-        "PLIVE+",
-        (plive_x, plive_y + title_y_offset, plive_x + box_width, plive_y + title_y_offset + title_h),
-        plive_title_font,
-        COLOR_BLACK
+    # Second row: Double-height Top 100 and PLIVE+ Rank
+    double_box_h = 2 * grid_cell_h + grid_v_gap
+    double_box_y = info_top_y + grid_cell_h + grid_v_gap
+    rank_box_left = (grid_left, double_box_y, grid_left + grid_cell_w, double_box_y + double_box_h)
+    rank_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, double_box_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, double_box_y + double_box_h)
+    draw_rank_box_vertical(
+        draw, rank_box_left, "TOP 100", top100_rank,
+        rank_label_font, rank_number_font, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4
     )
-    # Score
-    draw_centered(
-        draw,
-        str(int(float(player["PLIVEplus"])) if player["PLIVEplus"] else player["PLIVEplus"]),
-        (plive_x, plive_y + title_y_offset + title_h, plive_x + box_width, plive_y + title_y_offset + title_h + 70),
-        plive_score_font,
-        COLOR_BLACK
+    draw_rank_box_vertical(
+        draw, rank_box_right, "PLIVE+ RANK", pliveplus_rank,
+        rank_label_font, rank_number_font, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4
     )
-    # Week/month neatly inside box with more padding
-    metric_y = plive_y + title_y_offset + title_h + 70 + 12
-    metric_h = 30
-    draw.text((plive_x + 16, metric_y), "WEEK", font=plive_small_font, fill=COLOR_BLACK)
-    draw.text((plive_x + 100, metric_y), "-0.9", font=plive_small_font, fill=COLOR_BLACK)
-    draw.text((plive_x + 16, metric_y + metric_h), "MONTH", font=plive_small_font, fill=COLOR_BLACK)
-    draw.text((plive_x + 100, metric_y + metric_h), "-4.6", font=plive_small_font, fill=COLOR_BLACK)
 
-    # --- HEADSHOT (aligned with PLIVE+ box, now stretches to right edge of scout grades box) ---
-    grades_box_x = SIDE_MARGIN + BOTTOM_BOX_WIDTH + BOX_GAP
-    grades_box_right = grades_box_x + BOTTOM_BOX_WIDTH
-    photo_x = plive_box[2] + INFO_BOX_GAP
-    photo_y = info_section_top
-    photo_box = (photo_x, photo_y, grades_box_right, info_section_bottom)
-    draw_box(draw, photo_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
+    # Calculate info section bottom for headshot/logo alignment
+    info_section_bottom = double_box_y + double_box_h
+
+    # --- LOGO AND HEADSHOT (NEW LAYOUT) ---
+    # Place headshot to the right of the info section, logo centered in area where PLIVE+ box was previously.
+    # Define a large box for them to share, with headshot on right, logo on left (centered)
+    logo_headshot_box_left = grid_left + 2*grid_cell_w + 2*INFO_BOX_GAP + BOX_GAP
+    logo_headshot_box_right = CARD_WIDTH - SIDE_MARGIN
+    logo_headshot_box_top = info_top_y
+    logo_headshot_box_bottom = info_section_bottom
+    logo_headshot_box = (logo_headshot_box_left, logo_headshot_box_top, logo_headshot_box_right, logo_headshot_box_bottom)
+    logo_box_w = (logo_headshot_box_right - logo_headshot_box_left) // 2
+    logo_box = (
+        logo_headshot_box_left,
+        logo_headshot_box_top,
+        logo_headshot_box_left + logo_box_w,
+        logo_headshot_box_bottom
+    )
+    headshot_box = (
+        logo_headshot_box_left + logo_box_w,
+        logo_headshot_box_top,
+        logo_headshot_box_right,
+        logo_headshot_box_bottom
+    )
+
+    # Draw logo (centered in left half)
+    team_abbr = player.get("Team", "").strip().upper()
+    logo_url = mlb_logo_urls.get(team_abbr)
+    if logo_url:
+        logo_size = int(min(logo_box[2] - logo_box[0], logo_box[3] - logo_box[1]) * 0.82)
+        logo_img = fetch_logo_image(logo_url, logo_size)
+        if logo_img:
+            lx = logo_box[0] + (logo_box[2] - logo_box[0] - logo_size) // 2
+            ly = logo_box[1] + (logo_box[3] - logo_box[1] - logo_size) // 2
+            img.paste(logo_img, (lx, ly), logo_img)
+
+    # Draw headshot (centered in right half, aspect ratio preserved)
+    mlbam_id = get_mlbam_id(player["Name"], team=team_abbr, cache=mlbam_cache, chadwick_ids=chadwick_ids)
+    if mlbam_id:
+        headshot_url = get_headshot_url(mlbam_id)
+        headshot_img = fetch_headshot_image(headshot_url)
+        if headshot_img:
+            resized_img, px, py = resize_and_center(headshot_img, headshot_box)
+            img.paste(resized_img, (px, py), resized_img)
+        else:
+            draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
+    else:
+        draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
 
     # --- BOTTOM: Main White Boxes (Peak Projections & Scout Grades), aligned with top boxes ---
     bottom_y = info_section_bottom + BOX_GAP
@@ -333,7 +427,6 @@ def draw_player_card(player, top100_map, outfile="player_card.png"):
     proj_box = (proj_box_x, bottom_y, proj_box_x + BOTTOM_BOX_WIDTH, bottom_y + BOTTOM_BOX_HEIGHT)
     draw_box(draw, proj_box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=BOTTOM_BOX_BORDER)
 
-    # Section title (two lines, bold and large, moved down for padding)
     title1 = "PLIVE+ PEAK"
     title2 = "PROJECTIONS"
     title_h = 36
@@ -403,20 +496,17 @@ def draw_player_card(player, top100_map, outfile="player_card.png"):
         COLOR_BLACK
     )
 
-    grade_labels = [
-        ("OFP", 45), ("Risk", "HIGH"),
-        ("Hit", 55), ("Power", 45),
-        ("Field", 50), ("Throw", 50),
-        ("Run", 60)
-    ]
+    player_grades = os_grades.get(player_name_upper, {}) if os_grades.get(player_name_upper) else {}
+    grade_labels = SCOUT_GRADE_LABELS
     grade_start_y = bottom_y + section_title_pad + 2*title_h - 6 + 6
     grade_row_height = (BOTTOM_BOX_HEIGHT - (section_title_pad + 2*title_h)) // len(grade_labels)
     grade_label_x = grades_box_x + 36
     grade_val_x = grades_box_x + BOTTOM_BOX_WIDTH - 172
-    for i, (label, value) in enumerate(grade_labels):
+    for i, label in enumerate(grade_labels):
         y0 = grade_start_y + i * grade_row_height
         draw.text((grade_label_x, y0), f"{label.upper()} -", font=grade_label_font, fill=COLOR_BLACK)
-        color = color_for_grade(value) if isinstance(value, (int, float)) else COLOR_BLUE if value == "HIGH" else COLOR_GRAY
+        value = player_grades.get(label, "") if player_grades else ""
+        color = color_for_grade(value) if value and value.replace('.', '', 1).isdigit() else COLOR_GRAY
         draw.text((grade_val_x, y0), str(value), font=grade_font, fill=color)
 
     # --- FOOTER: Bold italic "prospects live" centered at the bottom ---
@@ -431,7 +521,7 @@ def draw_player_card(player, top100_map, outfile="player_card.png"):
     # --- LOGO: bottom right, next to the footer text (larger now) ---
     try:
         logo_img = Image.open(LOGO_FILE).convert("RGBA")
-        logo_size = 92  # larger logo
+        logo_size = 92
         logo_img = logo_img.resize((logo_size, logo_size), Image.LANCZOS)
         logo_x = CARD_WIDTH - SIDE_MARGIN - logo_size + 4
         logo_y = CARD_HEIGHT - logo_size - 8
@@ -449,15 +539,18 @@ def load_players(csv_file):
     return players
 
 def main():
+    chadwick_ids = load_chadwick_ids("people")
     players = load_players(CSV_FILE)
     top100_map = load_top_100(TOP100_CSV_FILE)
+    pliveplus_ranks = get_pliveplus_ranks(CSV_FILE)
+    os_positions, os_grades = get_os_positions_and_grades(OS_CSV_FILE)
+    mlb_logo_urls = get_mlb_logo_urls(MLB_LOGOS_CSV)
+    mlbam_cache = load_mlbam_cache(MLBAM_ID_CACHE)
     player_names = [p["Name"] for p in players]
-
     print("First 20 players:")
     for i, name in enumerate(player_names[:20]):
         print(f"{i+1}. {name}")
     print(f"...({len(player_names)} total)")
-
     inp = input("\nType a player number (1-20 above) or part of a name to search: ").strip()
     if inp.isdigit():
         idx = int(inp) - 1
@@ -480,12 +573,10 @@ def main():
         else:
             print("Invalid selection.")
             return
-
-    # -- Fill missing info automatically --
     fill_missing_player_info(player)
-
     output_filename = f"{player['Name'].replace(' ', '_')}_card.png"
-    draw_player_card(player, top100_map, outfile=output_filename)
+    draw_player_card(player, top100_map, pliveplus_ranks, os_positions, os_grades, mlb_logo_urls, mlbam_cache, chadwick_ids, outfile=output_filename)
+    save_mlbam_cache(mlbam_cache, MLBAM_ID_CACHE)
 
 if __name__ == "__main__":
     main()

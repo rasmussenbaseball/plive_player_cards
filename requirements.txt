@@ -1,0 +1,6 @@
+streamlit
+pillow
+requests
+pybaseball
+pandas
+numpy

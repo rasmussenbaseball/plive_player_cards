@@ -310,7 +310,10 @@ def fetch_logo_image(url, size):
         print(f"Error fetching logo: {url} ({e})")
         return None
 
-def draw_player_card(player, top100_map, pliveplus_ranks, os_positions, os_grades, mlb_logo_urls, mlbam_cache, chadwick_ids, outfile="player_card.png"):
+def draw_player_card(
+    player, top100_map, pliveplus_ranks, os_positions, os_grades,
+    mlb_logo_urls, mlbam_cache, chadwick_ids, outfile=None
+):
     img = Image.new("RGB", (CARD_WIDTH, CARD_HEIGHT), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
@@ -529,8 +532,11 @@ def draw_player_card(player, top100_map, pliveplus_ranks, os_positions, os_grade
     except Exception as e:
         print(f"Logo not found or error loading logo: {e}")
 
-    img.save(outfile)
-    print(f"Saved card for {player['Name']} as {outfile}")
+    if outfile:
+        img.save(outfile)
+        print(f"Saved card for {player['Name']} as {outfile}")
+
+    return img  # Always return the PIL Image object
 
 def load_players(csv_file):
     with open(csv_file, newline="", encoding="utf-8") as f:

@@ -4,6 +4,7 @@ import glob
 import requests
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+import unicodedata
 
 from pybaseball.playerid_lookup import playerid_lookup  # Fallback lookup
 
@@ -63,6 +64,14 @@ STAT_COLOR_RULES = {
 SCOUT_GRADE_RULES = {"gray": (45, 55)}
 SCOUT_GRADE_LABELS = ["OFP", "Hit", "Power", "Field", "Arm", "Run"]
 
+#################### NAME NORMALIZATION ########################
+
+def normalize_name(name):
+    name = name.lower().strip()
+    name = unicodedata.normalize('NFKD', name)
+    name = name.encode('ascii', 'ignore').decode('ascii')
+    return name
+
 #################### MLBAM ID UTILITIES ########################
 
 def load_chadwick_ids(folder="people"):
@@ -76,7 +85,7 @@ def load_chadwick_ids(folder="people"):
                 full_name = f"{first} {last}"
                 mlbam_id = row['key_mlbam'].strip()
                 if mlbam_id:
-                    id_map[full_name] = mlbam_id
+                    id_map[normalize_name(full_name)] = mlbam_id
     return id_map
 
 def load_mlbam_cache(cache_file):
@@ -86,7 +95,7 @@ def load_mlbam_cache(cache_file):
             reader = csv.reader(f)
             for row in reader:
                 if len(row) >= 2:
-                    cache[row[0].upper()] = row[1]
+                    cache[normalize_name(row[0])] = row[1]
     return cache
 
 def save_mlbam_cache(cache, cache_file):
@@ -96,20 +105,21 @@ def save_mlbam_cache(cache, cache_file):
             writer.writerow([key, val])
 
 def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
+    norm_player_name = normalize_name(player_name)
     # 1. Try Chadwick Bureau first
     if chadwick_ids is not None:
-        parts = player_name.strip().lower().split()
+        parts = player_name.strip().split()
         if len(parts) >= 2:
             full_name = f"{parts[0]} {parts[-1]}"
-            mlbam_id = chadwick_ids.get(full_name)
+            norm_full_name = normalize_name(full_name)
+            mlbam_id = chadwick_ids.get(norm_full_name)
             if mlbam_id:
                 if cache is not None:
-                    cache[player_name.upper()] = mlbam_id
+                    cache[norm_player_name] = mlbam_id
                 return mlbam_id
     # 2. Fallback to cache
-    key = player_name.upper()
-    if cache and key in cache:
-        return cache[key]
+    if cache and norm_player_name in cache:
+        return cache[norm_player_name]
     # 3. Fallback to pybaseball
     parts = player_name.strip().split()
     if len(parts) < 2:
@@ -128,7 +138,7 @@ def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
         else:
             mlbam_id = int(lookup.iloc[0]['key_mlbam'])
         if cache is not None:
-            cache[key] = str(mlbam_id)
+            cache[norm_player_name] = str(mlbam_id)
         return str(mlbam_id)
     except Exception as e:
         print(f"MLBAM lookup failed for {player_name}: {e}")
@@ -265,7 +275,7 @@ def load_top_100(csv_file):
     with open(csv_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            pname = row["Prospects"].strip().upper()
+            pname = normalize_name(row["Prospects"].strip())
             rank = row.get("Rank", "").strip()
             if rank.isdigit():
                 top100[pname] = str(int(rank))
@@ -281,7 +291,7 @@ def get_pliveplus_ranks(csv_file):
     with open(csv_file, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for idx, row in enumerate(reader):
-            pname = row["Name"].strip().upper()
+            pname = normalize_name(row["Name"].strip())
             plive_ranks[pname] = str(idx + 1)
     return plive_ranks
 
@@ -298,7 +308,7 @@ def get_os_positions_and_grades(os_csv_file):
                     break
             if not name_col:
                 continue
-            pname = row[name_col].strip().upper()
+            pname = normalize_name(row[name_col].strip())
             pos = row.get("Position", "").strip()
             os_positions[pname] = pos
             grades = {}
@@ -383,9 +393,10 @@ def draw_player_card(
     grid_v_gap = 10
 
     player_name_upper = player["Name"].strip().upper()
-    top100_rank = top100_map.get(player_name_upper, "NR")
-    pliveplus_rank = pliveplus_ranks.get(player_name_upper, "NR")
-    player_pos = os_positions.get(player_name_upper, "")
+    player_name_norm = normalize_name(player["Name"].strip())
+    top100_rank = top100_map.get(player_name_norm, "NR")
+    pliveplus_rank = pliveplus_ranks.get(player_name_norm, "NR")
+    player_pos = os_positions.get(player_name_norm, "")
 
     # Info box positions for new layout
     info_top_y = grid_top
@@ -398,7 +409,7 @@ def draw_player_card(
 
     # Second row: Double-height Top 100 and PLIVE+ Rank
     double_box_h = 2 * grid_cell_h + grid_v_gap
-    double_box_y = info_top_y + grid_cell_h + grid_v_gap
+    double_box_y = info_top_y + grid_cell_w + grid_v_gap
     rank_box_left = (grid_left, double_box_y, grid_left + grid_cell_w, double_box_y + double_box_h)
     rank_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, double_box_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, double_box_y + double_box_h)
     draw_rank_box_vertical(
@@ -528,7 +539,7 @@ def draw_player_card(
         COLOR_BLACK
     )
 
-    player_grades = os_grades.get(player_name_upper, {}) if os_grades.get(player_name_upper) else {}
+    player_grades = os_grades.get(player_name_norm, {}) if os_grades.get(player_name_norm) else {}
     grade_labels = SCOUT_GRADE_LABELS
     grade_start_y = bottom_y + section_title_pad + 2*title_h - 6 + 6
     grade_row_height = (BOTTOM_BOX_HEIGHT - (section_title_pad + 2*title_h)) // len(grade_labels)

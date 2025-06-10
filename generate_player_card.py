@@ -64,8 +64,7 @@ STAT_COLOR_RULES = {
 SCOUT_GRADE_RULES = {"gray": (45, 55)}
 SCOUT_GRADE_LABELS = ["OFP", "Hit", "Power", "Field", "Arm", "Run"]
 
-#################### NAME NORMALIZATION ########################
-
+# ---- NORMALIZATION ----
 def normalize_name(name):
     name = name.lower().strip()
     name = unicodedata.normalize('NFKD', name)
@@ -105,21 +104,20 @@ def save_mlbam_cache(cache, cache_file):
             writer.writerow([key, val])
 
 def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
-    norm_player_name = normalize_name(player_name)
+    norm_name = normalize_name(player_name)
     # 1. Try Chadwick Bureau first
     if chadwick_ids is not None:
         parts = player_name.strip().split()
         if len(parts) >= 2:
             full_name = f"{parts[0]} {parts[-1]}"
-            norm_full_name = normalize_name(full_name)
-            mlbam_id = chadwick_ids.get(norm_full_name)
+            mlbam_id = chadwick_ids.get(normalize_name(full_name))
             if mlbam_id:
                 if cache is not None:
-                    cache[norm_player_name] = mlbam_id
+                    cache[norm_name] = mlbam_id
                 return mlbam_id
     # 2. Fallback to cache
-    if cache and norm_player_name in cache:
-        return cache[norm_player_name]
+    if cache and norm_name in cache:
+        return cache[norm_name]
     # 3. Fallback to pybaseball
     parts = player_name.strip().split()
     if len(parts) < 2:
@@ -138,7 +136,7 @@ def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
         else:
             mlbam_id = int(lookup.iloc[0]['key_mlbam'])
         if cache is not None:
-            cache[norm_player_name] = str(mlbam_id)
+            cache[norm_name] = str(mlbam_id)
         return str(mlbam_id)
     except Exception as e:
         print(f"MLBAM lookup failed for {player_name}: {e}")
@@ -149,15 +147,11 @@ def get_headshot_url(mlbam_id):
 
 def fetch_headshot_image(mlbam_id):
     urls = [
-        # NEW: MiLB-specific CDN path, 360px wide
         f"https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_360/v1/people/{mlbam_id}/headshot/milb/current",
-        # Sometimes MLB headshots live here too
         f"https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_360/v1/people/{mlbam_id}/headshot/mlb/current",
-        # Old style
         f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/67/current.png",
         f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/120/current.png",
         f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/180/current.png",
-        # MiLB legacy
         f"https://img.milbstatic.com/photos/people/67/{mlbam_id}.jpg",
         f"https://img.milbstatic.com/photos/people/120/{mlbam_id}.jpg",
         f"https://img.milbstatic.com/photos/people/180/{mlbam_id}.jpg"
@@ -170,7 +164,6 @@ def fetch_headshot_image(mlbam_id):
                 return img
         except Exception:
             continue
-    # fallback: use a local silhouette image
     try:
         img = Image.open("default_silhouette.png").convert("RGBA")
         return img
@@ -337,20 +330,15 @@ def fetch_logo_image(url, size):
         print(f"Error fetching logo: {url} ({e})")
         return None
 
-# --- Stat formatting helpers ---
-
 def fmt_stat(label, val):
     try:
         if label in ["AVG", "OBP", "SLG"]:
-            # Always 3 digits, no leading zero
             v = float(val)
             return f".{int(round(v * 1000)):03d}"
         elif label in ["BB%", "K%"]:
-            # Percent, always 1 decimal
             v = float(val) * 100
             return f"{v:.1f}%"
         elif label == "wRC+":
-            # Always 4 digits, pad with .0 if needed
             v = float(val)
             return f"{v:.1f}"
         else:
@@ -362,11 +350,9 @@ def draw_player_card(
     player, top100_map, pliveplus_ranks, os_positions, os_grades,
     mlb_logo_urls, mlbam_cache, chadwick_ids, outfile=None
 ):
-    print(f"DRAW_PLAYER_CARD CALLED for {player.get('Name')}")
     img = Image.new("RGB", (CARD_WIDTH, CARD_HEIGHT), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
-    # --- FONTS ---
     name_font = load_font(NAME_FONT_SIZE, bold=True)
     info_font = load_font(INFO_BOX_FONT_SIZE, bold=True)
     bottom_section_title_font_big = load_font(32, bold=True)
@@ -385,20 +371,18 @@ def draw_player_card(
     name_y = TOP_MARGIN
     draw.text((name_x, name_y), name_text, font=name_font, fill=COLOR_WHITE)
 
-    # --- INFO SECTION (NEW LAYOUT) ---
     grid_left = SIDE_MARGIN
     grid_top = name_y + NAME_FONT_SIZE + ROW_GAP + 6
     grid_cell_w = (BOTTOM_BOX_WIDTH - INFO_BOX_GAP) // 2
     grid_cell_h = INFO_BOX_HEIGHT
     grid_v_gap = 10
 
-    player_name_upper = player["Name"].strip().upper()
-    player_name_norm = normalize_name(player["Name"].strip())
-    top100_rank = top100_map.get(player_name_norm, "NR")
-    pliveplus_rank = pliveplus_ranks.get(player_name_norm, "NR")
-    player_pos = os_positions.get(player_name_norm, "")
+    # Normalized for lookups only!
+    name_key = normalize_name(player["Name"].strip())
+    top100_rank = top100_map.get(name_key, "NR")
+    pliveplus_rank = pliveplus_ranks.get(name_key, "NR")
+    player_pos = os_positions.get(name_key, "")
 
-    # Info box positions for new layout
     info_top_y = grid_top
     info_box_left = (grid_left, info_top_y, grid_left + grid_cell_w, info_top_y + grid_cell_h)
     info_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, info_top_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, info_top_y + grid_cell_h)
@@ -407,9 +391,8 @@ def draw_player_card(
     draw_box(draw, info_box_right, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4)
     draw_centered(draw, player.get("Level", "LEVEL"), info_box_right, info_font, COLOR_BLACK)
 
-    # Second row: Double-height Top 100 and PLIVE+ Rank
     double_box_h = 2 * grid_cell_h + grid_v_gap
-    double_box_y = info_top_y + grid_cell_w + grid_v_gap
+    double_box_y = info_top_y + grid_cell_h + grid_v_gap
     rank_box_left = (grid_left, double_box_y, grid_left + grid_cell_w, double_box_y + double_box_h)
     rank_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, double_box_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, double_box_y + double_box_h)
     draw_rank_box_vertical(
@@ -421,10 +404,8 @@ def draw_player_card(
         rank_label_font, rank_number_font, fill=COLOR_WHITE, outline=COLOR_BLACK, width=4
     )
 
-    # Calculate info section bottom for headshot/logo alignment
     info_section_bottom = double_box_y + double_box_h
 
-    # --- LOGO AND HEADSHOT (NEW LAYOUT) ---
     logo_headshot_box_left = grid_left + 2*grid_cell_w + 2*INFO_BOX_GAP + BOX_GAP
     logo_headshot_box_right = CARD_WIDTH - SIDE_MARGIN
     logo_headshot_box_top = info_top_y
@@ -444,7 +425,6 @@ def draw_player_card(
         logo_headshot_box_bottom
     )
 
-    # Draw logo (centered in left half)
     team_abbr = player.get("Team", "").strip().upper()
     logo_url = mlb_logo_urls.get(team_abbr)
     if logo_url:
@@ -455,29 +435,21 @@ def draw_player_card(
             ly = logo_box[1] + (logo_box[3] - logo_box[1] - logo_size) // 2
             img.paste(logo_img, (lx, ly), logo_img)
 
-    # Draw headshot (centered in right half, aspect ratio preserved)
-    print(f"Getting MLBAM ID for: {player['Name']} ({team_abbr})")
     mlbam_id = get_mlbam_id(player["Name"], team=team_abbr, cache=mlbam_cache, chadwick_ids=chadwick_ids)
-    print(f"MLBAM ID result for {player['Name']}: {mlbam_id}")
     if mlbam_id:
         headshot_img = fetch_headshot_image(mlbam_id)
-        print(f"Fetched headshot for {player['Name']}: {headshot_img is not None}")
         if headshot_img:
             resized_img, px, py = resize_and_center(headshot_img, headshot_box)
             img.paste(resized_img, (px, py), resized_img)
         else:
-            print(f"Headshot image NOT FOUND for {player['Name']}, drawing gray box.")
             draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
     else:
-        print(f"No MLBAM ID for {player['Name']}, drawing gray box.")
         draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
 
-    # --- BOTTOM: Main White Boxes (Peak Projections & Scout Grades), aligned with top boxes ---
     bottom_y = info_section_bottom + BOX_GAP
     proj_box_x = SIDE_MARGIN
     grades_box_x = proj_box_x + BOTTOM_BOX_WIDTH + BOX_GAP
 
-    # --- PLIVE+ PEAK PROJECTIONS BOX ---
     proj_box = (proj_box_x, bottom_y, proj_box_x + BOTTOM_BOX_WIDTH, bottom_y + BOTTOM_BOX_HEIGHT)
     draw_box(draw, proj_box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=BOTTOM_BOX_BORDER)
 
@@ -519,7 +491,6 @@ def draw_player_card(
         color = color_for_stat(label, player.get(key, ""))
         draw.text((stat_val_x, y0), str(stat_val_fmt), font=stat_value_font, fill=color)
 
-    # --- PROSPECTS LIVE SCOUT GRADES BOX ---
     grades_box = (grades_box_x, bottom_y, grades_box_x + BOTTOM_BOX_WIDTH, bottom_y + BOTTOM_BOX_HEIGHT)
     draw_box(draw, grades_box, fill=COLOR_WHITE, outline=COLOR_BLACK, width=BOTTOM_BOX_BORDER)
     sg_title_1 = "PROSPECTS LIVE"
@@ -539,7 +510,7 @@ def draw_player_card(
         COLOR_BLACK
     )
 
-    player_grades = os_grades.get(player_name_norm, {}) if os_grades.get(player_name_norm) else {}
+    player_grades = os_grades.get(name_key, {}) if os_grades.get(name_key) else {}
     grade_labels = SCOUT_GRADE_LABELS
     grade_start_y = bottom_y + section_title_pad + 2*title_h - 6 + 6
     grade_row_height = (BOTTOM_BOX_HEIGHT - (section_title_pad + 2*title_h)) // len(grade_labels)
@@ -552,7 +523,6 @@ def draw_player_card(
         color = color_for_grade(value) if value and value.replace('.', '', 1).isdigit() else COLOR_GRAY
         draw.text((grade_val_x, y0), str(value), font=grade_font, fill=color)
 
-    # --- FOOTER: Bold italic "prospects live" centered at the bottom ---
     footer_text = "prospects live"
     footer_font = load_font(FOOTER_TEXT_SIZE, italic=True)
     footer_bbox = footer_font.getbbox(footer_text)
@@ -561,7 +531,6 @@ def draw_player_card(
     footer_y = CARD_HEIGHT - FOOTER_TEXT_SIZE - 16
     draw.text((footer_x, footer_y), footer_text, font=footer_font, fill=COLOR_WHITE)
 
-    # --- LOGO: bottom right, next to the footer text (larger now) ---
     try:
         logo_img = Image.open(LOGO_FILE).convert("RGBA")
         logo_size = 92

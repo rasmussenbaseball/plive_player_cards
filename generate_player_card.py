@@ -137,20 +137,37 @@ def get_mlbam_id(player_name, team=None, cache=None, chadwick_ids=None):
 def get_headshot_url(mlbam_id):
     return f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/67/current.png"
 
-def fetch_headshot_image(url):
+def fetch_headshot_image(mlbam_id):
+    urls = [
+        # NEW: MiLB-specific CDN path, 360px wide
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_360/v1/people/{mlbam_id}/headshot/milb/current",
+        # Sometimes MLB headshots live here too
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/c_fill,g_auto/w_360/v1/people/{mlbam_id}/headshot/mlb/current",
+        # Old style
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/67/current.png",
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/120/current.png",
+        f"https://img.mlbstatic.com/mlb-photos/image/upload/v1/people/{mlbam_id}/headshot/180/current.png",
+        # MiLB legacy
+        f"https://img.milbstatic.com/photos/people/67/{mlbam_id}.jpg",
+        f"https://img.milbstatic.com/photos/people/120/{mlbam_id}.jpg",
+        f"https://img.milbstatic.com/photos/people/180/{mlbam_id}.jpg"
+    ]
+    for url in urls:
+        try:
+            resp = requests.get(url, timeout=8)
+            if resp.status_code == 200 and resp.headers.get("Content-Type", "").startswith("image"):
+                img = Image.open(BytesIO(resp.content)).convert("RGBA")
+                return img
+        except Exception:
+            continue
+    # fallback: use a local silhouette image
     try:
-        resp = requests.get(url, timeout=8)
-        img = Image.open(BytesIO(resp.content)).convert("RGBA")
+        img = Image.open("default_silhouette.png").convert("RGBA")
         return img
-    except Exception as e:
-        print(f"Error fetching headshot: {url} ({e})")
+    except Exception:
         return None
 
 def resize_and_center(img, target_box):
-    """
-    Resize img to fit inside target_box (x0, y0, x1, y1) without distortion.
-    Returns resized_img, offset_x, offset_y.
-    """
     box_w = target_box[2] - target_box[0]
     box_h = target_box[3] - target_box[1]
     img_w, img_h = img.size
@@ -310,6 +327,27 @@ def fetch_logo_image(url, size):
         print(f"Error fetching logo: {url} ({e})")
         return None
 
+# --- Stat formatting helpers ---
+
+def fmt_stat(label, val):
+    try:
+        if label in ["AVG", "OBP", "SLG"]:
+            # Always 3 digits, no leading zero
+            v = float(val)
+            return f".{int(round(v * 1000)):03d}"
+        elif label in ["BB%", "K%"]:
+            # Percent, always 1 decimal
+            v = float(val) * 100
+            return f"{v:.1f}%"
+        elif label == "wRC+":
+            # Always 4 digits, pad with .0 if needed
+            v = float(val)
+            return f"{v:.1f}"
+        else:
+            return str(val)
+    except Exception:
+        return str(val)
+
 def draw_player_card(
     player, top100_map, pliveplus_ranks, os_positions, os_grades,
     mlb_logo_urls, mlbam_cache, chadwick_ids, outfile=None
@@ -411,8 +449,7 @@ def draw_player_card(
     # Draw headshot (centered in right half, aspect ratio preserved)
     mlbam_id = get_mlbam_id(player["Name"], team=team_abbr, cache=mlbam_cache, chadwick_ids=chadwick_ids)
     if mlbam_id:
-        headshot_url = get_headshot_url(mlbam_id)
-        headshot_img = fetch_headshot_image(headshot_url)
+        headshot_img = fetch_headshot_image(mlbam_id)
         if headshot_img:
             resized_img, px, py = resize_and_center(headshot_img, headshot_box)
             img.paste(resized_img, (px, py), resized_img)
@@ -464,18 +501,7 @@ def draw_player_card(
         y0 = stat_start_y + i * stat_row_height
         draw.text((stat_col_x, y0), label, font=stat_label_font, fill=COLOR_BLACK)
         stat_val = player.get(key, "")
-        if label in ["BB%", "K%"]:
-            try:
-                stat_val_fmt = f"{float(stat_val)*100:.1f}%"
-            except:
-                stat_val_fmt = stat_val
-        elif label in ["AVG", "OBP", "SLG"]:
-            try:
-                stat_val_fmt = f".{str(stat_val).split('.')[-1]}"
-            except:
-                stat_val_fmt = stat_val
-        else:
-            stat_val_fmt = stat_val
+        stat_val_fmt = fmt_stat(label, stat_val)
         color = color_for_stat(label, player.get(key, ""))
         draw.text((stat_val_x, y0), str(stat_val_fmt), font=stat_value_font, fill=color)
 

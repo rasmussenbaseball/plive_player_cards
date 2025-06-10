@@ -352,6 +352,7 @@ def draw_player_card(
     player, top100_map, pliveplus_ranks, os_positions, os_grades,
     mlb_logo_urls, mlbam_cache, chadwick_ids, outfile=None
 ):
+    print(f"DRAW_PLAYER_CARD CALLED for {player.get('Name')}")
     img = Image.new("RGB", (CARD_WIDTH, CARD_HEIGHT), BG_COLOR)
     draw = ImageDraw.Draw(img)
 
@@ -387,7 +388,6 @@ def draw_player_card(
     player_pos = os_positions.get(player_name_upper, "")
 
     # Info box positions for new layout
-    # Top row: OF (left), Level (right)
     info_top_y = grid_top
     info_box_left = (grid_left, info_top_y, grid_left + grid_cell_w, info_top_y + grid_cell_h)
     info_box_right = (grid_left + grid_cell_w + INFO_BOX_GAP, info_top_y, grid_left + 2*grid_cell_w + INFO_BOX_GAP, info_top_y + grid_cell_h)
@@ -414,8 +414,6 @@ def draw_player_card(
     info_section_bottom = double_box_y + double_box_h
 
     # --- LOGO AND HEADSHOT (NEW LAYOUT) ---
-    # Place headshot to the right of the info section, logo centered in area where PLIVE+ box was previously.
-    # Define a large box for them to share, with headshot on right, logo on left (centered)
     logo_headshot_box_left = grid_left + 2*grid_cell_w + 2*INFO_BOX_GAP + BOX_GAP
     logo_headshot_box_right = CARD_WIDTH - SIDE_MARGIN
     logo_headshot_box_top = info_top_y
@@ -447,15 +445,20 @@ def draw_player_card(
             img.paste(logo_img, (lx, ly), logo_img)
 
     # Draw headshot (centered in right half, aspect ratio preserved)
+    print(f"Getting MLBAM ID for: {player['Name']} ({team_abbr})")
     mlbam_id = get_mlbam_id(player["Name"], team=team_abbr, cache=mlbam_cache, chadwick_ids=chadwick_ids)
+    print(f"MLBAM ID result for {player['Name']}: {mlbam_id}")
     if mlbam_id:
         headshot_img = fetch_headshot_image(mlbam_id)
+        print(f"Fetched headshot for {player['Name']}: {headshot_img is not None}")
         if headshot_img:
             resized_img, px, py = resize_and_center(headshot_img, headshot_box)
             img.paste(resized_img, (px, py), resized_img)
         else:
+            print(f"Headshot image NOT FOUND for {player['Name']}, drawing gray box.")
             draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
     else:
+        print(f"No MLBAM ID for {player['Name']}, drawing gray box.")
         draw_box(draw, headshot_box, fill=COLOR_GRAY, outline=COLOR_BLACK, width=PHOTO_BOX_BORDER)
 
     # --- BOTTOM: Main White Boxes (Peak Projections & Scout Grades), aligned with top boxes ---
@@ -612,4 +615,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

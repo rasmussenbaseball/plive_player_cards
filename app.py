@@ -7,6 +7,8 @@ from generate_player_card import (
     get_mlb_logo_urls, load_mlbam_cache, load_chadwick_ids
 )
 
+# redeploy test
+
 # --- Constants for your data files ---
 CSV_FILE = "plive_hitters.csv"
 TOP100_CSV_FILE = "plive_top_100.csv"
